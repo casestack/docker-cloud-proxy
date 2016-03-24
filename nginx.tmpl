@@ -9,13 +9,14 @@ server {
 {{ range $containers := groupBy $ "Env.DOCKERCLOUD_SERVICE_HOSTNAME" }}
   {{ $container := index $containers 0 }}
 
+  {{ $ignore := parseBool (or ($container.Env.DCP_IGNORE) "false") }}
   {{ $service := $container.Env.DOCKERCLOUD_SERVICE_HOSTNAME }}
   {{ $stack := $container.Env.DOCKERCLOUD_STACK_NAME }}
-  {{ $domain := replace $.Env.DOMAIN "." "\\." -1 }}
+  {{ $domain := replace $.Env.DCP_DOMAIN "." "\\." -1 }}
 
   {{ range $address := $container.Addresses }}
   {{/* Only work with ports that are exposed to the host. */}}
-  {{ if $address.HostPort }}
+  {{ if (and $address.HostPort (eq $ignore false)) }}
     {{ $upstream := print $service "-" $stack "-"  $address.Port }}
 
     upstream {{ $upstream }} {
