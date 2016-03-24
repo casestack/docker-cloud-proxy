@@ -14,6 +14,8 @@ server {
   {{ $domain := replace $.Env.DOMAIN "." "\\." -1 }}
 
   {{ range $address := $container.Addresses }}
+  {{/* Only work with ports that are exposed to the host. */}}
+  {{ if $address.HostPort }}
     {{ $upstream := print $service "-" $stack "-"  $address.Port }}
 
     upstream {{ $upstream }} {
@@ -25,6 +27,8 @@ server {
     server {
       server_name ~^({{ $service }}\.)?{{ $stack }}\.{{ $domain }}$;
       listen {{ $address.Port }};
+      listen {{ $address.HostPort }};
+
       location / {
         proxy_pass http://{{ $upstream }};
 
@@ -42,5 +46,6 @@ server {
         {{ end }}
       }
     }
+  {{ end }}
   {{ end }}
 {{ end }}
