@@ -27,6 +27,7 @@ api.stack2.mydomain.com:4444
 api.stack2.mydomain.com:4445
 ```
 
+
 You would have to enable a wildcard DNS record on your DNS server for `*.mydomain.com` to work.
 
 ## License
